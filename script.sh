@@ -19,13 +19,14 @@ vim-cmd vmsvc/getallvms | awk 'NR>1 {print $1 "\t" $2}' | while IFS=$'\t' read v
     echo "vim-cmd vmsvc/snapshot.revert $vmid $snapid 0 &"
     echo "sleep 10"
     echo "vim-cmd vmsvc/power.on $vmid"
+    echo "sleep 5"
     echo
 
   # Case 2: No snapshot + nonpersistent → power cycle
   elif [ -z "$snapid" ] && echo "$mode" | grep -q "independent_nonpersistent"; then
     echo "# $vmid $name"
     echo "vim-cmd vmsvc/power.off $vmid"
-    echo "sleep 5"
+    echo "sleep 10"
     echo "vim-cmd vmsvc/power.on $vmid"
     echo "sleep 5"
     echo

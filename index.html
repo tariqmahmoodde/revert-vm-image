@@ -237,6 +237,33 @@
             animation: pulse 2s infinite;
         }
 
+        .copy-btn {
+            margin-left: auto;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn i {
+            margin-right: 5px;
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .copy-btn:active {
+            transform: translateY(0);
+        }
+
         @keyframes pulse {
             0% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -314,6 +341,9 @@
                     <i class="fas fa-terminal"></i>
                     <h3>Execution Results</h3>
                     <span class="status-indicator"></span>
+                    <button id="copy-all-btn" class="copy-btn" title="Copy Results">
+                        <i class="fas fa-copy"></i> Copy
+                    </button>
                 </div>
                 <div class="output-container">
                     <pre>{{ output }}</pre>
@@ -339,6 +369,50 @@
             input.addEventListener('blur', function() {
                 this.parentElement.style.transform = 'scale(1)';
             });
+        });
+
+        // Copy all execution results
+        document.addEventListener('DOMContentLoaded', function() {
+            const copyBtn = document.getElementById('copy-all-btn');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', function() {
+                    const outputText = document.querySelector('.output-container pre').innerText;
+
+                    // Filter out the execution details header
+                    let filteredText = outputText;
+                    if (outputText.includes('=== Execution Details ===')) {
+                        // Find the end of the header section (marked by ======================== and two newlines)
+                        const headerEndIndex = outputText.indexOf('========================\n\n');
+                        if (headerEndIndex !== -1) {
+                            // Extract only the content after the header section
+                            filteredText = outputText.substring(headerEndIndex + '========================\n\n'.length);
+                        }
+                    }
+
+                    navigator.clipboard.writeText(filteredText)
+                        .then(() => {
+                            // Visual feedback for successful copy
+                            const originalText = copyBtn.innerHTML;
+                            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                            copyBtn.style.background = 'linear-gradient(135deg, #28a745 0%, #20c997 100%)';
+
+                            setTimeout(() => {
+                                copyBtn.innerHTML = originalText;
+                                copyBtn.style.background = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)';
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy text: ', err);
+                            copyBtn.innerHTML = '<i class="fas fa-times"></i> Failed to copy';
+                            copyBtn.style.background = 'linear-gradient(135deg, #dc3545 0%, #ff6b6b 100%)';
+
+                            setTimeout(() => {
+                                copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                                copyBtn.style.background = 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)';
+                            }, 2000);
+                        });
+                });
+            }
         });
     </script>
 </body>
